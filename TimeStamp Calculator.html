@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>时间戳计算器</title>
+    <script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.4.1.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $("#add").click(function () {
+                let timeStamp1 = $("#timeStamp1").val();
+                let timeStamp2 = $("#timeStamp2").val();
+                let figure = $("input[name = 'figure']:checked").val();
+                if (timeStamp1 != "" && timeStamp2 != "") {
+                    if (figure == "6") {
+                        timeStamp1 = reFormat(figure6(timeStamp1));
+                        timeStamp2 = reFormat(figure6(timeStamp2));
+                    } else if (figure == "8") {
+                        timeStamp1 = reFormat(figure8(timeStamp1));
+                        timeStamp2 = reFormat(figure8(timeStamp2));
+                    } else {
+                        timeStamp1 = reFormat(timeStamp1);
+                        timeStamp2 = reFormat(timeStamp2);
+                    }
+                    $("#1").text(timeFormat(timeStamp1) + " + " + timeFormat(timeStamp2) + " = " + calculate(timeStamp1, timeStamp2, "+"));
+                }
+            });
+            $("#substract").click(function () {
+                let timeStamp1 = $("#timeStamp3").val();
+                let timeStamp2 = $("#timeStamp4").val();
+                let figure = $("input[name = 'figure']:checked").val();
+                if (timeStamp1 != "" && timeStamp2 != "") {
+                    if (figure == "6") {
+                        timeStamp1 = reFormat(figure6(timeStamp1));
+                        timeStamp2 = reFormat(figure6(timeStamp2));
+                    } else if (figure == "8") {
+                        timeStamp1 = reFormat(figure8(timeStamp1));
+                        timeStamp2 = reFormat(figure8(timeStamp2));
+                    } else {
+                        timeStamp1 = reFormat(timeStamp1);
+                        timeStamp2 = reFormat(timeStamp2);
+                    }
+                    $("#2").text(timeFormat(timeStamp1) + " - " + timeFormat(timeStamp2) + " = " + calculate(timeStamp1, timeStamp2, "-"));
+                }
+            });
+            $("#convert").click(function () {
+                let timeStamp = $("#timeStamp5").val();
+                let figure = $("input[name = 'figure']:checked").val();
+                if (timeStamp != "") {
+                    if (timeStamp.includes(":")) {
+                        $("#3").text(timeFormat(timeStamp));
+                    } else {
+                        if (figure == "6") {
+                            timeStamp = reFormat(figure6(timeStamp));
+                        } else if (figure == "8") {
+                            timeStamp = reFormat(figure8(timeStamp));
+                        } else {
+                            timeStamp = reFormat(timeStamp);
+                        }
+                        $("#3").text(timeFormat(reFormat(timeStamp)));
+                    }
+
+                }
+            });
+        });
+        function calculate(start, time, sysmbol) {
+            // start
+            let millisec1 = Number(start.slice(6));
+            let sec1 = Number(start.slice(4, 6));
+            let min1 = Number(start.slice(2, 4));
+            let hour1 = Number(start.slice(0, 2));
+            // time
+            let millisec2 = Number(time.slice(6));
+            let sec2 = Number(time.slice(4, 6));
+            let min2 = Number(time.slice(2, 4));
+            let hour2 = Number(time.slice(0, 2));
+            // result
+            let millisec;
+            let sec = 0;
+            let min = 0;
+            let hour = 0;
+            if (sysmbol == "+") {
+                if (millisec1 + millisec2 >= 1000) {
+                    millisec = millisec1 + millisec2 - 1000;
+                    sec++;
+                } else {
+                    millisec = millisec1 + millisec2;
+                }
+                if (sec1 + sec2 >= 60) {
+                    sec += sec1 + sec2 - 60;
+                    min++;
+                } else {
+                    sec += sec1 + sec2;
+                }
+                if (min1 + min2 >= 60) {
+                    min += min1 + min2 - 60;
+                    hour++;
+                } else {
+                    min += min1 + min2;
+                }
+                if (hour1 + hour2 >= 24) {
+                    hour += hour1 + hour2 - 24;
+                } else {
+                    hour += hour1 + hour2;
+                }
+            } else {
+                if (millisec1 < millisec2) {
+                    millisec = 1000 + millisec1 - millisec2;
+                    sec--;
+                } else {
+                    millisec = millisec1 - millisec2;
+                }
+                if (sec1 < sec2) {
+                    sec += 60 + sec1 - sec2;
+                    min--;
+                } else {
+                    sec += sec1 - sec2;
+                }
+                if (min1 < min2) {
+                    min += 60 + min1 - min2;
+                    hour--;
+                } else {
+                    min += min1 - min2;
+                }
+                hour += hour1 - hour2;
+            }
+            return stringFormat1(hour) + ":" + stringFormat1(min) + ":" + stringFormat1(sec) + "." + stringFormat2(millisec);
+        }
+        function reFormat(timeStamp) {
+            let length = timeStamp.length;
+            if (length > 0 && length <= 9) {
+                while (length < 9) {
+                    timeStamp = "0" + timeStamp;
+                    length++;
+                }
+                return timeStamp;
+            }
+        }
+        function stringFormat1(number) {
+            if (number == 0) {
+                return "00";
+            } else if (number < 10) {
+                return "0" + number.toString();
+            } else {
+                return number.toString();
+            }
+        }
+        function stringFormat2(number) {
+            if (number == 0) {
+                return "000";
+            } else if (number < 10) {
+                return "00" + number.toString();
+            } else if (number > 10 && number < 100) {
+                return "0" + number.toString();
+            } else {
+                return number.toString();
+            }
+        }
+        function figure6(string) {
+            return string + "000";
+        }
+        function figure8(string) {
+            return string + "0";
+        }
+        function timeFormat(string) {
+            if (string == "") {
+                return "";
+            } else if (string.includes(":")) {
+                return Number(string.replace(/([:.])/g, ""));
+            } else {
+                return string.slice(0, 2) + ":" + string.slice(2, 4) + ":" + string.slice(4, 6) + "." + string.slice(6);
+            }
+        }
+    </script>
+    <style>
+    </style>
+</head>
+
+<body>
+    <h3>时间戳计算器</h3>
+    <p><input type="radio" name="figure" value="6" checked="checked">6位 <input type="radio" name="figure" value="8">8位
+        <input type="radio" name="figure" value="9">9位
+    </p>
+    <p>起始： <input type="text" id="timeStamp1"> 时长： <input type="text" id="timeStamp2"> <button id="add">计算</button></p>
+    <p id="1"></p>
+    <p>时间： <input type="text" id="timeStamp3"> 起始： <input type="text" id="timeStamp4"> <button
+            id="substract">计算</button></p>
+    <p id="2"></p>
+    <p>时间戳： <input type="text" id="timeStamp5"> <button id="convert">转换</button>
+    </p>
+    <p id="3"></p>
+</body>
+
+</html>
